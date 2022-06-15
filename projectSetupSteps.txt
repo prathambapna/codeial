@@ -1,0 +1,62 @@
+Steps done
+
+1)npm init
+2)setup folders->models,views,routes,controllers,config
+3)npm install express(after this can check in package-json)
+4)in index.js
+
+const express=require('express');
+const app=express();
+const port=8000;
+
+app.listen(port,function(error)
+{
+    if(error)
+    {
+        // console.log('Error:',err);
+        // or
+        console.log(`Error: $(error)`);
+    }
+    console.log(`Server is running on the port: ${port}`);
+    
+})
+
+5)instead of nodemon index.js in terminal we can use
+go in package json
+under scripts add new tag "start":"nodemon index.js",
+now instead of nodemon index.js use npm start
+
+6)initialising git in terminal
+git init
+make new file .gitignore
+in this write the name of folders file u dont want git to take(maybe bcoz they consume lot space which is not required)
+we will write node_modules/
+u can check with git status before and after that now node_modules folder is there or not
+
+then finally git add .
+git commit -m "first commit:...."
+
+7)make index.js in route
+inside route/index.js
+
+const express=require('express');
+const router=express.Router();
+
+module.exports=router;
+
+8)in index.js
+//use express router(use before server starts  as middleware)
+app.use('/',require('./routes'));
+
+9)in home_controller in controllers
+module.exports.home=function(req,res)
+{
+    return res.end('<h1>Express is up for Codeial!</h1>')
+}
+
+10)in routes/index
+const homeController=require('../controllers/home_controller');
+router.get('/',homeController.home);
+
+11)
+
