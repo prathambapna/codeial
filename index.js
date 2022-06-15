@@ -5,6 +5,9 @@ const port=8000;
 //use express router(use before server starts  as middleware)
 app.use('/',require('./routes'));
 
+//setup the view engine
+app.set('view engine','ejs');
+app.set('views','./views')
 
 app.listen(port,function(error)
 {

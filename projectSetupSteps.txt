@@ -79,4 +79,12 @@ module.exports=router;
 14) in routes/index.js
 router.use('/users',require('./users'));
 
+15)in terminal
+git add .
+git commit -m "added use_controller and routes"
 
+16)npm install ejs
+
+17)in index.js
+app.set('view engine','ejs');
+app.set('views','./views')
