@@ -118,3 +118,28 @@ module.exports.home=function(req,res)
         title:'Home'
     });
 }
+
+21)user.ejs in view
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+</head>
+<body>
+    <h1>
+        Codeial /<%= title %>
+    </h1>
+</body>
+</html>
+
+22)in users_controller.js
+module.exports.profile=function(req,res){
+    res.render('profile',{
+        title:'User-profile'
+    });
+}
