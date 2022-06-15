@@ -58,5 +58,25 @@ module.exports.home=function(req,res)
 const homeController=require('../controllers/home_controller');
 router.get('/',homeController.home);
 
-11)
+11)in terminal
+git add .
+git commit -m "added controller and routes"
+
+12)in users_controller.js in controllers
+module.exports.profile=function(req,res){
+    return res.end('<h1>User Profile</h1>');
+}
+
+13)create new route in route folder as users.js
+const express=require('express');
+const router=express.Router();
+
+const usersController=require('../controllers/users_controller');
+
+router.get('/profile',usersController.profile);
+module.exports=router;
+
+14) in routes/index.js
+router.use('/users',require('./users'));
+
 
