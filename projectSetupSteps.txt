@@ -88,3 +88,33 @@ git commit -m "added use_controller and routes"
 17)in index.js
 app.set('view engine','ejs');
 app.set('views','./views')
+
+18)git add .
+git commit -m "added view engine ejs"
+
+19)created home.ejs in views
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+</head>
+<body>
+    <h1>
+        Codeial /<%= title %>
+    </h1>
+</body>
+</html>
+
+20)in home_controller.js
+module.exports.home=function(req,res)
+{
+    //return res.end('<h1>Express is up for Codeial!</h1>')
+    return res.render('home',{
+        title:'Home'
+    });
+}
