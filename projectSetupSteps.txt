@@ -162,3 +162,5 @@ and _footer.ejs
     </h1>
     <%- include('_footer'); %>
 </body>
+
+25)npm install express-ejs-layouts
