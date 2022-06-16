@@ -164,3 +164,36 @@ and _footer.ejs
 </body>
 
 25)npm install express-ejs-layouts
+26)in index.js
+
+const expressLayouts=require('express-ejs-layouts');
+
+//use it before using routes as it belongs to view which is going to  be rendered in routes so before it gets rendered we neet to specify layout
+app.use(expressLayouts);
+
+27)in layout.ejs in view
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+</head>
+<body>
+    <%- include('_header'); %>
+    
+    <!-- here body is the variable part for different layouts -->
+    <%- body %>
+
+    <%- include('_footer'); %>
+</body>
+</html>
+
+28)change user_profile.ejs and home.ejs as
+<!-- whatever u write here will be rendered to body of the layout -->
+<h1>
+    Codeial /Profile
+</h1>
