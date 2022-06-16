@@ -242,4 +242,69 @@ by writing <%-style%> and <%-script %> at appropriate places
 </body>
 </html>
 
-34)
+34)npm install mongoose
+35)inside mongoose.js in config
+const mongoose=require('mongoose');
+mongoose.connect('mongodb://localhost/codeial_development');
+
+const db=mongoose.connection;
+db.on('error',console.error.bind(console,"Error connecting to mongodb"));
+db.once('open',function(){
+    console.log('connected to database::MongoDB');
+});
+
+module.exports=db;
+
+36)in index.js
+const db=require('./config/mongoose');
+
+37)creating schema
+in user.js in models
+const mongooese=require('mongoose');
+
+const userSchema=new mongooese.Schema({
+    email:{
+        type:String,
+        required:true,
+        unique:true
+    },
+    password:{
+        type:String,
+        required:true
+    },
+    name:{
+        type:String,
+        required:true
+    }
+
+},
+{
+    timestamps:true
+});
+
+const User=mongooese.model('User',userSchema);
+module.exports=User;
+
+38)create user_sign_in.ejs and user_sign_up.ejs in views
+<h1>
+    Sign In
+</h1>
+
+39)to render the view go in user_controller.js
+//render the sign up page
+module.exports.signUp=function(req,res){
+    return res.render('user_sign_up',{
+        title:"Codeial | Sign Up"
+    })
+}
+//render the sign in page
+module.exports.signIn=function(req,res){
+    return res.render('user_sign_in',{
+        title:"Codeial | Sign In"
+    })
+}
+
+
+40)in user.js in routes add the route
+router.get('/sign-up',usersController.signUp);
+router.get('/sign-in',usersController.signIn);
