@@ -208,5 +208,38 @@ body{
 }
 
 31)in layout.ejs
+this is for styles required by things other than variable part
 <link rel="stylesheet" href="/css/layout.css">
     
+32)in index.js for static files to be used by variable parts
+//extract style and scripts from subpages into the layout after calling expresslayout
+app.set('layout extractStyles',true);
+app.set('layout extractScripts',true);
+
+33)in layout.ejs
+put style and script tag for static used by variable body
+by writing <%-style%> and <%-script %> at appropriate places
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="stylesheet" href="/css/layout.css">
+    <%- style%>
+</head>
+<body>
+    <%- include('_header'); %>
+    
+    <!-- here body is the variable part for different layouts -->
+    <%- body %>
+
+    <%- include('_footer'); %>
+    <%- script%>
+</body>
+</html>
+
+34)

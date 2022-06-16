@@ -8,6 +8,9 @@ app.use(express.static('./assets'));
 
 //use it before using routes as it belongs to view which is going to  be rendered in routes so before it gets rendered we neet to specify layout
 app.use(expressLayouts);
+//extract style and scripts from subpages into the layout after calling expresslayouts
+app.set('layout extractStyles',true);
+app.set('layout extractScripts',true);
 
 
 
