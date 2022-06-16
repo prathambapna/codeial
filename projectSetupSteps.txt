@@ -197,3 +197,16 @@ app.use(expressLayouts);
 <h1>
     Codeial /Profile
 </h1>
+
+29)index.js
+app.use(express.static('./assets'));
+30)layout.css in assets
+body{
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+31)in layout.ejs
+<link rel="stylesheet" href="/css/layout.css">
+    
