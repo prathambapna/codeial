@@ -143,3 +143,22 @@ module.exports.profile=function(req,res){
         title:'User-profile'
     });
 }
+
+23)created _header.ejs 
+<header>
+    Page Header
+</header>
+
+and _footer.ejs
+<footer>
+    Page footer
+</footer>
+
+24)in home.ejs and profile.ejs
+<body>
+    <%- include('_header'); %>
+    <h1>
+        Codeial /<%= title %>
+    </h1>
+    <%- include('_footer'); %>
+</body>
