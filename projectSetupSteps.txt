@@ -308,3 +308,62 @@ module.exports.signIn=function(req,res){
 40)in user.js in routes add the route
 router.get('/sign-up',usersController.signUp);
 router.get('/sign-in',usersController.signIn);
+
+41)in user_sign_up.ejs
+
+<form action="/users/create" method="POST">
+    <input type="text" name="name" placeholder="Your Name" required>
+    <input type="email" name="email" placeholder="Your email" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <input type="password" name="confirm password" placeholder="Confirm Password" required>
+    <input type="submit" value="Sign Up">
+</form>
+
+42)in user_sign_in.ejs
+<form action="/users/create-session" method="POST">
+    <input type="email" name="email" placeholder="Your email" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <input type="submit" value="Sign In">
+</form>
+
+43)//used for params and query in post request
+app.use(express.urlencoded());
+
+44)starting with manual authentication
+npm install cookie-parser
+
+45)
+const cookieParser=require('cookie-parser');
+app.use(cookieParser());
+
+46)in users_controller.js in controllers
+//importing model
+const User=require('../models/user');
+
+
+//get the signup data
+module.exports.create=function(req,res)
+{
+    //if password not equal to confirm password
+    if(req.body.password!=req.body.confirm_password)
+    {
+        return res.redirect('back');
+    }
+    User.findOne({email:req.body.email},function(err,user){
+        if(err){console.log('error in signing up');return;}
+
+        if(!user)
+        {
+            User.create(req.body,function(err,user){
+                if(err){console.log('error in signing up');return;}
+                return res.redirect('/users/sign-in');
+            })
+        }
+        else{
+            return res.redirect('back');
+        }
+    })
+} 
+
+47)in users.js in routes
+router.get('/create',usersController.create);
