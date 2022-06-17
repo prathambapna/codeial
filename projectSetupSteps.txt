@@ -427,4 +427,45 @@ passport.deserializeUser(function(id,done){
 
 module.exports=passport;
 
-52)
+52)npm install express-session
+
+53)index.js
+
+//used for session cookie
+const session=require('express-session');
+const passport=require('passport');
+const passportLocal=require('./config/passport-local-strategy');
+
+//after setting the views,use session as middleware 
+app.use(session({
+    name:'codeial',
+    //todo the secret before deployment in production mode
+    secret:'blahsomething',
+    saveUninitialized:false,
+    resave:false,
+    cookie:{
+        maxAge:(1000*60*100)
+        //100 min =>1000 millisec,60sec
+    }
+}))
+app.use(passport.initialize());
+app.use(passport.session());
+
+54)in use_controller
+//create session for sign in
+module.exports.createSession=function(req,res)
+{
+    return res.redirect('/');
+} 
+
+55)in user.js in routes
+//use passport as a middleware to authenticate
+
+router.post('/create-session',passport.authenticate(
+    'local',
+    {failureRedirect:'/users/sign-in'}
+),usersController.createSession);
+
+/*
+basically when create-session called it authenticates if done then call usercontroller.createSession otherwise redirect to sign-in
+*/
