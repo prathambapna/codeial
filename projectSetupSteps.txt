@@ -366,4 +366,6 @@ module.exports.create=function(req,res)
 } 
 
 47)in users.js in routes
-router.get('/create',usersController.create);
+router.post('/create',usersController.create);
+
+48)after signing up in browser now,u can now check in studio3T 
