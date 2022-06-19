@@ -28,8 +28,6 @@ app.set('layout extractScripts',true);
 
 
 
-//use express router(use before server starts  as middleware)
-app.use('/',require('./routes'));
 
 //setup the view engine
 app.set('view engine','ejs');
@@ -50,6 +48,10 @@ app.use(session({
 }))
 app.use(passport.initialize());
 app.use(passport.session());
+
+
+//use express router(use before server starts  as middleware)
+app.use('/',require('./routes'));
 
 app.listen(port,function(error)
 {
