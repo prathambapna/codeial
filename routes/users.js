@@ -16,5 +16,7 @@ router.post('/create-session',passport.authenticate(
 /*
 basically when create-session called it authenticates if done then call usercontroller.createSession otherwise redirect to sign-in
 */
- 
+
+
+router.get('/sign-out',usersController.destroySession);
 module.exports=router;

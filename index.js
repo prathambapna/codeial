@@ -10,6 +10,8 @@ const session=require('express-session');
 const passport=require('passport');
 const passportLocal=require('./config/passport-local-strategy');
 
+//using mongostore to store the session cookies so that after every restart of server user does not gets logged out
+const MongoStore= require('connect-mongo');
 
 
 
@@ -35,6 +37,7 @@ app.set('views','./views')
 
 
 //after setting the views,use session as middleware 
+//mongo store is udes to store the session cookie in db
 app.use(session({
     name:'codeial',
     //todo the secret before deployment in production mode
@@ -44,7 +47,15 @@ app.use(session({
     cookie:{
         maxAge:(1000*60*100)
         //100 min =>1000 millisec,60sec
-    }
+    },
+    store:MongoStore.create({
+        //got this url from mongodb atlas application
+        mongoUrl:'mongodb://localhost:27017',
+        autoRemove:'disabled'
+    },function(err)
+    {
+        console.log(err || 'connect-mongo-db setup ok');
+    })
 }))
 app.use(passport.initialize());
 app.use(passport.session());
