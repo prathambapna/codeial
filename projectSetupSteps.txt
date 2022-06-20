@@ -469,3 +469,58 @@ router.post('/create-session',passport.authenticate(
 /*
 basically when create-session called it authenticates if done then call usercontroller.createSession otherwise redirect to sign-in
 */
+
+55)in passport.js
+//sending data of logged in user to views
+
+//step 1]check if the user is authenticated
+passport.checkAuthentication=function(req,res,next){
+    //if the user is signed in ,then pass on the request to the next function(controllers action)
+    if(req.isAuthenticated()){
+        return next();
+    }
+    //if the user is not signed in
+    return res.redirect('/users/sign-in');
+}
+passport.setAuthenticatedUser=function(req,res,next){
+    if(req.isAuthenticated()){
+        //req.user contains the current signed in  user from the session cookie and we are just sending this to the locals for the views
+        res.locals.user=req.user;
+    }
+    next();
+}
+
+56)in users.js routes
+router.get('/profile',passport.checkAuthentication,usersController.profile);
+
+57)index.js
+app.use(passport.setAuthenticatedUser)
+
+
+58)in profile.ejs
+<!-- user available bcoz we made res.locals.user=req.user in passport.js -->
+<p><%= user.name%></p>
+<p><%= user.email%></p>
+
+59)in use_controller.js
+//render the sign up page
+module.exports.signUp=function(req,res){
+
+    //we only want user to access signup page when not signed in that is not authenticated
+    //otherwise redirect to profile page
+    if(req.isAuthenticated()){
+        return res.redirect('/users/profile');
+    }
+    return res.render('user_sign_up',{
+        title:"Codeial | Sign Up"
+    })
+}
+//render the sign in page
+module.exports.signIn=function(req,res){
+    if(req.isAuthenticated()){
+        return res.redirect('/users/profile');
+    }
+    return res.render('user_sign_in',{
+        title:"Codeial | Sign In"
+    })
+}

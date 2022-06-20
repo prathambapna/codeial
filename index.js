@@ -48,7 +48,7 @@ app.use(session({
 }))
 app.use(passport.initialize());
 app.use(passport.session());
-
+app.use(passport.setAuthenticatedUser)
 
 //use express router(use before server starts  as middleware)
 app.use('/',require('./routes'));
