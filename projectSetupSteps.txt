@@ -739,3 +739,95 @@ module.exports=router;
 
 74)index.js in routes
 router.use('/posts',require('./posts'));
+
+75)home_controller.js
+const Post=require('../models/post');
+module.exports.home=function(req,res)
+{
+
+    Post.find({},function(err,posts)
+    {
+        return res.render('home',{
+            title:'Codeial | Home',
+            posts:posts
+        });
+    })
+}
+
+76)home.ejs
+<h1>
+    Codeial /<%= title %>
+</h1>
+<section id="feed-posts">
+    <h2>Posts</h2>
+    <form action="/posts/create" id="new-post-form" method="POST">
+        <textarea name="content" cols="30" rows="3" placeholder="Type Here..."></textarea>
+        <input type="submit" value="Post">
+    </form>
+
+    //code changed from here
+    <div id="posts-list-container">
+        <ul>
+            <%for(post of posts){%>
+                <li>
+                    <%= post.content%>
+                </li>
+            <%}%>
+        </ul>
+    </div>
+</section>
+
+77)home_controller.js
+const Post=require('../models/post');
+module.exports.home=function(req,res)
+{
+
+    //with this if we do post.user in home.ejs it only gives id of the user,but if we need name,email,timecreated we need to populate the user
+    
+    // Post.find({},function(err,posts)
+    // {
+    //     return res.render('home',{
+    //         title:'Codeial | Home',
+    //         posts:posts
+    //     });
+    // })
+
+
+    //populate the user of each post
+    Post.find({}).populate('user').exec(function(err,posts)
+    {
+        return res.render('home',{
+            title:'Codeial | Home',
+            posts:posts
+        });
+    })
+}
+
+78)home.ejs
+<h1>
+    Codeial /<%= title %>
+</h1>
+<section id="feed-posts">
+    <h2>Posts</h2>
+    <form action="/posts/create" id="new-post-form" method="POST">
+        <textarea name="content" cols="30" rows="3" placeholder="Type Here..."></textarea>
+        <input type="submit" value="Post">
+    </form>
+    <div id="posts-list-container">
+        <ul>
+            <%for(post of posts){%>
+                <li>
+                    <p>
+                        <%= post.content%>
+                        <br>
+                        <small>
+                            <%=post.user.name%>
+                        </small>
+                    </p>
+                </li>
+            <%}%>
+        </ul>
+    </div>
+</section>
+
+79)
