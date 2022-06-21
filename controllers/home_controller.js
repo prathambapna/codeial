@@ -2,7 +2,7 @@ const Post=require('../models/post');
 module.exports.home=function(req,res)
 {
 
-    //with this if we do post.user in home.ejs it only gives id of the user,but if we need name,email,timecreated we need to populate the user
+    //with this if we do post.user in home.ejs it only gives id(since we hv set user:req.user._id in post_controller) of the user,but if we need name,email,timecreated we need to populate the user
     
     // Post.find({},function(err,posts)
     // {
