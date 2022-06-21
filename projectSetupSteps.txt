@@ -596,8 +596,8 @@ npm install node-sass-middleware
 // setting up sass
 const sassMiddleware=require('node-sass-middleware');
 app.use(sassMiddleware({
-    src:'/assets/scss',
-    dest:'/assets/css',
+    src:'./assets/scss',
+    dest:'./assets/css',
     debug:true,
     outputStyle:'extended',
     prefix:'/css'
@@ -605,4 +605,70 @@ app.use(sassMiddleware({
 
 
 67)moved two css files into scss and changing extension to .scss
-68)
+68)header.ejs edited
+<header>
+    <div id="logo">
+        <p>CODEIAL</p>
+    </div>
+    <div id="auth">
+        <ul>
+            <% if (locals.user) {%>
+                <li>
+                    <a href="/users/profile">
+                        PROFILE
+                    </a>
+                </li>
+                <li>
+                    <a href="/users/sign-out">SIGN OUT</a>
+                </li>
+            <%}else{%>
+                <li>
+                    <a href="/users/sign-in">Sign In</a>
+                </li>
+                <li>
+                    <a href="/users/sign-up">Sign Up</a>
+                </li>
+            <% } %>
+        </ul>
+    </div>
+</header>
+
+69)header.scss
+header{
+    display: flex;
+    justify-content: space-between;
+    height: 75px;
+    background-color: rgb(59, 50, 219);
+    #auth{
+        margin-right: 3%;
+        width: auto;
+        display: flex;
+        ul li{
+            list-style: none;
+            text-decoration: none;
+            display: inline-block;
+            padding: 0.3rem;
+            a{
+                color: aliceblue;
+                text-decoration: none;
+                font-weight: 500;
+                font-size: 1rem;
+                letter-spacing: 0.5px;
+                font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            }
+        }
+    }
+    #logo{
+        margin-left: 3%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        p{
+            font-weight: 700;
+            font-size: 1.6rem;
+            letter-spacing: 1px;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+        }
+    }
+}
