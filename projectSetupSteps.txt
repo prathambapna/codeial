@@ -559,7 +559,9 @@ app.use(session({
 <ul>
         <% if (locals.user) {%>
             <li>
-                <%=user.name%>
+                <a href="/users/profile">
+                    <%=user.name%>
+                </a>
             </li>
             <li>
                 <a href="/users/sign-out">Sign Out</a>
@@ -586,3 +588,21 @@ module.exports.destroySession=function(req,res){
 
 64)user.js in routes
 router.get('/sign-out',usersController.destroySession);
+
+65)including sass
+npm install node-sass-middleware
+
+66)index.js
+// setting up sass
+const sassMiddleware=require('node-sass-middleware');
+app.use(sassMiddleware({
+    src:'/assets/scss',
+    dest:'/assets/css',
+    debug:true,
+    outputStyle:'extended',
+    prefix:'/css'
+}))
+
+
+67)moved two css files into scss and changing extension to .scss
+68)
