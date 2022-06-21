@@ -6,7 +6,8 @@ header {
   header #auth {
     margin-right: 3%;
     width: auto;
-    display: flex; }
+    display: flex;
+    align-items: center; }
     header #auth ul li {
       list-style: none;
       text-decoration: none;
@@ -30,3 +31,6 @@ header {
       letter-spacing: 1px;
       color: white;
       font-family: 'Courier New', Courier, monospace; }
+      header #logo p .symb {
+        color: #e3f706;
+        margin-right: 0.5rem; }

@@ -608,7 +608,7 @@ app.use(sassMiddleware({
 68)header.ejs edited
 <header>
     <div id="logo">
-        <p>CODEIAL</p>
+        <p><span class="symb">&lt</span>CODEIAL<span class="symb">/&gt</span></p>
     </div>
     <div id="auth">
         <ul>
@@ -643,6 +643,7 @@ header{
         margin-right: 3%;
         width: auto;
         display: flex;
+        align-items: center;
         ul li{
             list-style: none;
             text-decoration: none;
@@ -669,6 +670,33 @@ header{
             letter-spacing: 1px;
             color: white;
             font-family: 'Courier New', Courier, monospace;
+            .symb{
+                color: rgb(227, 247, 6);
+                margin-right: 0.5rem;
+            }
         }
     }
 }
+
+70)in post.js in models
+const mongoose=require('mongoose');
+const postSchema=new mongoose.Schema({
+    content:{
+        type:String,
+        required:true
+    },
+    //here linking with user schema as post would be done by a user
+    user:{
+        //type=in robo3t u can see each user has objectid we will make of that type
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'User'
+    }
+},
+{
+    timestamps:true
+});
+
+const Post=mongoose.model('Post',postSchema);
+module.exports=Post;
+
+71)
