@@ -876,11 +876,152 @@ const postSchema=new mongoose.Schema({
         ref:'User'
     },
     //include the array of ids of all comments in this post schema itself
-    comments:{
+    comments:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:'comment'
-    }
+    }]
 },
 {
     timestamps:true
 });
+
+82)home.ejs
+in post-list-container added comments section
+<div id="posts-list-container">
+        <ul>
+            <%for(post of posts){%>
+                <li>
+                    <p>
+                        <%= post.content%>
+                        <br>
+                        <small>
+                            <%=post.user.name%>
+                        </small>
+                    </p>
+                    <div class="post-comments">
+                        <%if(locals.user){%>
+                            <form action="/comments/create" method="POST">
+                                <input type="text" name="content" placeholder="Type Here to add comment...">
+                                <input type="hidden" name="post" value="<%=post._id%>" >
+                                <input type="submit" value="Add Comment">
+                            </form>
+                        <%}%>
+                    </div>
+                </li>
+            <%}%>
+        </ul>
+    </div>
+
+83)comments_controller.js
+
+const Comment=require('../models/comment');
+const Post=require('../models/post');
+module.exports.create=function(req,res){
+    //req.body.post as we hv given name as post in input with type hidden
+    Post.findById(req.body.post,function(err,post){
+        if(post)
+        {
+            Comment.create({
+                content:req.body.content,
+                post:req.body.post,
+                user:req.user._id
+            },function(err,comment){
+
+                //updating the posts schema as well that is pushing the comment in the comments array
+                post.comments.push(comment);
+                post.save();
+
+                res.redirect('/');
+            });
+        }
+    })
+}
+
+84)comments.js in routes
+const express=require('express');
+const router=express.Router();
+const passport=require('passport');
+const commentsController=require('../controllers/comments_controller');
+
+
+//check if user is authenticated then only create post
+router.post('/create',passport.checkAuthentication,commentsController.create);
+module.exports=router;
+
+85)index.js in routes
+router.use('/comments',require('./comments'));
+
+86)home_controller.js 
+updated the populte part
+//populate the user of each post
+    //also populate comments and done by which user
+    Post.find({})
+    .populate('user')
+    .populate({
+        path:'comments',//as we have name the array in post schema as comments
+        populate:{
+            path:'user'//name the user in post schema as user
+        }
+    })
+    .exec(function(err,posts)
+    {
+        return res.render('home',{
+            title:'Codeial | Home',
+            posts:posts
+        });
+    })
+
+87)updated home.ejs
+<h1>
+    Codeial /<%= title %>
+</h1>
+<section id="feed-posts">
+    <h2>Posts</h2>
+    <!-- only if user is signed in view post input area -->
+    <%if(locals.user){%>
+        <form action="/posts/create" id="new-post-form" method="POST">
+            <textarea name="content" cols="30" rows="3" placeholder="Type Here..." required></textarea>
+            <input type="submit" value="Post">
+        </form>
+    <%}%>
+    <div id="posts-list-container">
+        <ul>
+            <%for(post of posts){%>
+                <li>
+                    <p>
+                        <%= post.content%>
+                        <br>
+                        <small>
+                            <%=post.user.name%>
+                        </small>
+                    </p>
+                    <div class="post-comments">
+                        <%if(locals.user){%>
+                            <form action="/comments/create" method="POST">
+                                <input type="text" name="content" placeholder="Type Here to add comment..." required>
+                                <input type="hidden" name="post" value="<%=post._id%>" >
+                                <input type="submit" value="Add Comment">
+                            </form>
+                        <%}%>
+                        <div class="post-comments-list">
+                            <ul id="post-comments-<%=post._id%>">
+                                <%for(comment of post.comments){%>
+                                    <p>
+                                        <%=comment.content%>
+                                        <br>
+                                        <small>
+                                            <%=comment.user.name%>
+                                        </small>
+                                    </p>
+                                <%}%>
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+            <%}%>
+        </ul>
+    </div>
+</section>
+
+
+88)

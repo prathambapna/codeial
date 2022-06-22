@@ -14,7 +14,16 @@ module.exports.home=function(req,res)
 
 
     //populate the user of each post
-    Post.find({}).populate('user').exec(function(err,posts)
+    //also populate comments and done by which user
+    Post.find({})
+    .populate('user')
+    .populate({
+        path:'comments',//as we have name the array in post schema as comments
+        populate:{
+            path:'user'//name the user in post schema as user
+        }
+    })
+    .exec(function(err,posts)
     {
         return res.render('home',{
             title:'Codeial | Home',
