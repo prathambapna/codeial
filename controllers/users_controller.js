@@ -2,11 +2,23 @@
 const User=require('../models/user');
 
 module.exports.profile=function(req,res){
-    res.render('profile',{
-        title:'User-profile'
-    });
+    User.findById(req.params.id,function(err,user){
+            return res.render('profile',{
+                title:'User Profile',
+                profile_user:user
+        });
+    })
 }
-
+module.exports.update=function(req,res){
+    if(req.user.id==req.params.id){
+        User.findByIdAndUpdate(req.params.id,req.body,function(err,User){
+            return res.redirect('back');
+        });
+    }else{
+        //if someone tries to fiddle by inspect nd then change id then show http 401 unauthorized part
+        return res.status(401).send('Unauthorized');
+    }
+}
 //render the sign up page
 module.exports.signUp=function(req,res){
 

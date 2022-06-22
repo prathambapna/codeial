@@ -1100,3 +1100,88 @@ router.get('/destroy/:id',passport.checkAuthentication,commentsController.destro
 <%}%>
 
 94)created partials for comments and posts that is included them in another file named as _comment.ejs and _post.ejs ,checkit out
+
+95)home_controller
+
+//to get all the users on the home page
+    //populate the user of each post
+    //also populate comments and done by which user
+    Post.find({})
+    .populate('user')
+    .populate({
+        path:'comments',//as we have name the array in post schema as comments
+        populate:{
+            path:'user'//name the user in post schema as user
+        }
+    })
+    .exec(function(err,posts)
+    {
+        User.find({},function(err,users){
+            return res.render('home',{
+                title:'Codeial | Home',
+                posts:posts,
+                //getting all users
+                all_users:users
+            });
+        })
+    })
+}
+
+96)home.ejs
+<section id="user-friends">
+    <h4>Friends</h4>
+    <% for(u of all_users){%>
+        <p>
+            <a href="/users/profile/<%=u.id%>"><%= u.name%></a>
+        </p>
+    <%}%>
+</section>
+
+97)user.js in routes
+router.get('/profile/:id',passport.checkAuthentication,usersController.profile);
+
+98)updated profile action in user_controller
+module.exports.profile=function(req,res){
+    User.findById(req.params.id,function(err,user){
+            return res.render('profile',{
+                title:'User Profile',
+                profile_user:user
+        });
+    })
+}
+
+99)profile.ejs
+
+//viewed links to profile of users
+<p><%= profile_user.name%></p>
+<p><%= profile_user.email%></p>
+
+100)profile.ejs
+different view of profile page for self than that of friends
+<% if(user.id==profile_user.id){ %>
+    <!-- if user matches then show the updation form otherwise just show profile info -->
+    <form action="/users/update/<%=profile_user.id%>" method:"POST">
+        <input type="text" name="name" placeholder="Your Name" value="<%=profile_user.name%>" required>
+        <input type="email" name="email" placeholder="Your Email" value="<%=profile_user.email%>" required>
+        <input type="submit" value="UPDATE">
+    </form>
+<%}else{%>
+    <p><%= profile_user.name%></p>
+    <p><%= profile_user.email%></p>
+<%}%>
+
+101)user_controller.js
+module.exports.update=function(req,res){
+    if(req.user.id==req.params.id){
+        User.findByIdAndUpdate(req.params.id,req.body,function(err,User){
+            return res.redirect('back');
+        });
+    }else{
+        //if someone tries to fiddle by inspect nd then change id then show http 401 unauthorized part
+        return res.status(401).send('Unauthorized');
+    }
+}
+
+102)user.js in routes
+router.post('/update/:id',passport.checkAuthentication,usersController.update);
+
