@@ -1098,3 +1098,5 @@ router.get('/destroy/:id',passport.checkAuthentication,commentsController.destro
         </small>
     </p>
 <%}%>
+
+94)created partials for comments and posts that is included them in another file named as _comment.ejs and _post.ejs ,checkit out
