@@ -1024,4 +1024,38 @@ updated the populte part
 </section>
 
 
-88)
+88)in post_controller
+//starting to delete the post
+
+const Comment=require('../models/comment');
+
+//will be deleting according to action=> /posts/destroy/:id
+//in params there would be id of post
+module.exports.destroy=function(req,res){
+    Post.findById(req.params.id,function(err,post){
+        //.id means converting the object id (._id) to string
+        if(post.user==req.user.id)
+        {
+            post.remove();
+            Comment.deleteMany({
+                post:req.params.id
+            },function(err){
+                return res.redirect('back');
+            });
+        }else{
+            return res.redirect('back');
+        }
+    });
+}
+
+89)post.js in routes
+router.get('/destroy/:id',passport.checkAuthentication,postsController.destroy);
+
+90)home.ejs
+
+//added delete post option in views ,check home.ejs file to know where it has been added
+ <% if(locals.user && locals.user.id==post.user.id){%>
+    <small>
+        <a href="/posts/destroy/<%=post.id%>">X</a>
+    </small>
+<%}%>
