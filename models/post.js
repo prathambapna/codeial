@@ -9,6 +9,11 @@ const postSchema=new mongoose.Schema({
         //type=in robo3t u can see each user has objectid we will make of that type
         type:mongoose.Schema.Types.ObjectId,
         ref:'User'
+    },
+    //include the array of ids of all comments in this post schema itself
+    comments:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'comment'
     }
 },
 {
