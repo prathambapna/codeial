@@ -20,3 +20,20 @@ module.exports.create=function(req,res){
         }
     })
 }
+
+module.exports.destroy=function(req,res){
+    Comment.findById(req.params.id,function(err,comment){
+        if(comment.user==req.user.id){
+            //since we also need to delete comment from the comments array of that particular post
+            let postId=comment.post;
+            comment.remove();
+            //update by pull out from comments array the id with req.params.id that is comment id
+            Post.findByIdAndUpdate(postId,{$pull:{comments:req.params.id}},function(err,post){
+                return res.redirect('back');
+            });
+        }
+        else{
+            return res.redirect('back');
+        }
+    })
+}

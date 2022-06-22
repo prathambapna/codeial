@@ -1059,3 +1059,42 @@ router.get('/destroy/:id',passport.checkAuthentication,postsController.destroy);
         <a href="/posts/destroy/<%=post.id%>">X</a>
     </small>
 <%}%>
+
+91)comments_controller.js
+//deleting comment
+module.exports.destroy=function(req,res){
+    Comment.findById(req.params.id,function(err,comment){
+        if(comment.user==req.user.id){
+            //since we also need to delete comment from the comments array of that particular post
+            let postId=comment.post;
+            comment.remove();
+            //update by pull out from comments array the id with req.params.id that is comment id
+            Post.findByIdAndUpdate(postId,{$pull:{comments:req.params.id}},function(err,post){
+                return res.redirect('back');
+            });
+        }
+        else{
+            return res.redirect('back');
+        }
+    })
+}
+
+92)comment.js in routes
+router.get('/destroy/:id',passport.checkAuthentication,commentsController.destroy);
+
+93)home.ejs updated
+
+ <%for(comment of post.comments){%>
+    <p>
+        <% if(locals.user && locals.user.id==comment.user.id){%>
+            <small>
+                <a href="/comments/destroy/<%=comment.id%>">X</a>
+            </small>
+        <%}%>
+        <%=comment.content%>
+        <br>
+        <small>
+            <%=comment.user.name%>
+        </small>
+    </p>
+<%}%>
