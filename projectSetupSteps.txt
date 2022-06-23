@@ -1331,3 +1331,75 @@ module.exports.destroy=async function(req,res){
         console.log('Error',err);
     }
 }
+
+
+/*
+using flash library for notifiactions
+
+set up the library flash
+used it after session being used
+setup msgs in users_controller
+then to pass on these msgs to html/ejs created a middleware
+to put the msg from req to res
+in middleware it fetches from req and put it in locals
+now we used it in index.js=>app.use(customMware.setFlash)
+now include it in view that is include it in layout after header
+*/
+
+107)using flash library for notifiactions
+npm install connect-flash
+
+108)index.js
+
+const flash=require('connect-flash');
+
+//use flash after session is being used,bcoz flash uses session cookies
+//whenever a session is created it will notify once as in if u r sign in and refresh it should not again show logged in successfully, but only when u hv signed out or session has been expired
+app.use(flash());
+
+109)user_controller
+added flash messages
+
+//create session for sign in
+module.exports.createSession=function(req,res)
+{
+    req.flash('success','Logged in Successfully');
+    return res.redirect('/');
+} 
+
+module.exports.destroySession=function(req,res){
+    req.logout(function(err)
+    {
+        if(err){return res.redirect('back');}
+        
+        req.flash('success','You have logged out!');
+        return res.redirect('/');
+    });
+}
+
+110)middleware.js in config
+
+//to get the flash msg from req and put it into res
+module.exports.setFlash=function(req,res,next)
+{
+    res.locals.flash={
+        'success':req.flash('success'),
+        'error':req.flash('error')
+    }
+    next();
+}
+
+111)index.js
+
+//called middleware and used it
+//check the location where they r used
+const customMware=require('./config/middleware');
+app.use(customMware.setFlash);
+
+112)layout.ejs
+<!-- if flash has success msg and that to non empty -->
+<% if(flash.success && flash.success.length>0){ %>
+    <h5>
+        <%= flash.success%>
+    </h5>
+<%}%>   

@@ -16,6 +16,11 @@ const MongoStore= require('connect-mongo');
 
 // setting up sass
 const sassMiddleware=require('node-sass-middleware');
+
+const flash=require('connect-flash');
+const customMware=require('./config/middleware');
+
+
 app.use(sassMiddleware({
     src:'./assets/scss',
     dest:'./assets/css',
@@ -70,6 +75,12 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(passport.setAuthenticatedUser)
+
+//use flash after session is being used,bcoz flash uses session cookies
+//whenever a session is created it will notify once as in if u r sign in and refresh it should not again show logged in successfully, but only when u hv signed out or session has been expired
+app.use(flash());
+app.use(customMware.setFlash);
+
 
 //use express router(use before server starts  as middleware)
 app.use('/',require('./routes'));
