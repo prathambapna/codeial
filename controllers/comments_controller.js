@@ -15,12 +15,13 @@ module.exports.create=async function(req,res){
             //updating the posts schema as well that is pushing the comment in the comments array
             post.comments.push(comment);
             post.save();
-
+            req.flash('success','Comment added!');
             res.redirect('/');
         }
     }catch(err)
     {
-        console.log('Error',err);
+        req.flash('error',err);
+        res.redirect('/');
     }
 }
 
@@ -33,13 +34,16 @@ module.exports.destroy=async function(req,res){
             comment.remove();
             //update by pull out from comments array the id with req.params.id that is comment id
             let post=await Post.findByIdAndUpdate(postId,{$pull:{comments:req.params.id}});
+            req.flash('success','Comment deleted!')
             return res.redirect('back');
         }
         else{
+            req.flash('error','You cannot delete this comment');
             return res.redirect('back');
         }
     }catch(err)
     {
-        console.log('Error',err);
+        req.flash('error',err);
+        return res.redirect('back');
     }
 }

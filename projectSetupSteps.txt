@@ -1433,4 +1433,40 @@ in layout.ejs
 <%}%> 
 </script>
 
-114)
+114)passport-local.js
+
+//edited to use noty js
+//passReqToCallback:true
+//chnaged func arguments to=>function(req,email,password,done)
+//then used flash
+
+
+//tell passport to use localstrategy
+passport.use(new LocalStrategy({
+        //always need to define usernameField with the one u use as username in schemma(one which is going to be unique)
+        usernameField:'email',
+        //this will allow to pass req variable to callback
+        passReqToCallback:true
+    },
+    function(req,email,password,done)
+    {
+        //find a user and establish identity
+        User.findOne({
+            //the first email is of schemma property defined by us, the second one is the one which function takes as argument
+            email:email},function(err,user){
+                if(err)
+                {
+                    req.flash('error',err);
+                    return done(err);
+                }
+                if(!user || user.password!=password){
+                    req.flash('error','Invalid Username/Password');
+                    return done(null,false);
+                }
+                return done(null,user);
+        });
+    }
+))
+
+115)updated user_controller,post_controller,comments_controller
+with flash msgs
