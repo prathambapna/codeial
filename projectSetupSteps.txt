@@ -1185,3 +1185,149 @@ module.exports.update=function(req,res){
 102)user.js in routes
 router.post('/update/:id',passport.checkAuthentication,usersController.update);
 
+103)home.scss
+
+//also changed home.ejs a bit have a look 
+#home-container{
+    display: flex;
+    height: 100%;
+    #feed-posts{
+        width: 70%;
+        padding: 10px;
+
+    }
+
+    #user-friends{
+        width:30%;
+        padding:10px;
+        border-left: 1px solid lightgrey;
+        height: 100%;
+    }
+}
+
+
+//NOW CHANGING ALL CONTROLLER CODES TO ASYNC AWAIT 
+//WHEREEVER THERE IS NESTING OF CALLBACKS(CALLBACK HELL) ,IF ONLY ONE CALLBACK THEN NOT NEEDED
+//IN CALLBACK THE VARIABLE WE USE IF NEEDED SO GET IT IN LET VARIABLE(POSTS,COMMENT,ETC)
+
+
+104)home_controller
+changed the code to look neat and handle errors
+
+
+module.exports.home= async function(req,res)
+{
+    try{
+        let posts=await Post.find({})
+        .populate('user')
+        .populate({
+            path:'comments',//as we have name the array in post schema as comments
+            populate:{
+                path:'user'//name the user in post schema as user
+            }
+        });
+
+        let users=await User.find({});
+
+        return res.render('home',{
+            title:'Codeial | Home',
+            posts:posts,
+            all_users:users
+        });
+    }catch(err){
+        console.log('Error',err);
+        return; 
+    }
+}
+
+105)posts_controller
+const Post=require('../models/post');
+const Comment=require('../models/comment');
+module.exports.create=async function(req,res)
+{
+    try{
+        await Post.create({
+            //we have got the post schema above
+            //now can access content,user
+            //here user._id (can refer in robo3t)
+            //req.body.content is bcoz we hv given name of form as content
+            content:req.body.content,
+            user:req.user._id
+        });
+        return res.redirect('back');
+    }catch(err)
+    {
+        console.log('Error',err);
+    }
+}
+
+//will be deleting according to action=> /posts/destroy/:id
+//in params there would be id of post
+module.exports.destroy=async function(req,res){
+    try{
+        let post=await Post.findById(req.params.id);
+        //.id means converting the object id (._id) to string
+        if(post.user==req.user.id)
+        {
+            post.remove();
+            await Comment.deleteMany({
+                post:req.params.id
+            });
+            return res.redirect('back');
+        }else{
+            return res.redirect('back');
+        }
+    }catch(err)
+    {
+        console.log('Error',err);
+    }
+    
+}
+
+106)comments_controller
+
+const Comment=require('../models/comment');
+const Post=require('../models/post');
+
+module.exports.create=async function(req,res){
+    try{
+        //req.body.post as we hv given name as post in input with type hidden
+        let post=await Post.findById(req.body.post)
+        if(post)
+        {
+            let comment=await Comment.create({
+                content:req.body.content,
+                post:req.body.post,
+                user:req.user._id
+            });
+            //updating the posts schema as well that is pushing the comment in the comments array
+            post.comments.push(comment);
+            post.save();
+
+            res.redirect('/');
+        }
+    }catch(err)
+    {
+        console.log('Error',err);
+    }
+}
+
+module.exports.destroy=async function(req,res){
+    try{
+        let comment=await Comment.findById(req.params.id);
+        if(comment.user==req.user.id){
+            //since we also need to delete comment from the comments array of that particular post
+            let postId=comment.post;
+            comment.remove();
+            //update by pull out from comments array the id with req.params.id that is comment id
+            let post=await Post.findByIdAndUpdate(postId,{$pull:{comments:req.params.id}});
+            return res.redirect('back');
+        }
+        else{
+            return res.redirect('back');
+        }
+    }catch(err)
+    {
+        console.log('Error',err);
+    }
+}

@@ -1,6 +1,7 @@
 //importing model
 const User=require('../models/user');
 
+//not need to change to async await as only one callback
 module.exports.profile=function(req,res){
     User.findById(req.params.id,function(err,user){
             return res.render('profile',{
