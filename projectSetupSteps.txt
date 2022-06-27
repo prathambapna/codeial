@@ -5,20 +5,19 @@ Steps done
 3)npm install express(after this can check in package-json)
 4)in index.js
 
+//using express to create server (instead of https)
 const express=require('express');
 const app=express();
 const port=8000;
 
-app.listen(port,function(error)
-{
+app.listen(port,function(error){
     if(error)
     {
-        // console.log('Error:',err);
+        // console.log('Error:',error);
         // or
         console.log(`Error: $(error)`);
     }
     console.log(`Server is running on the port: ${port}`);
-    
 })
 
 5)instead of nodemon index.js in terminal we can use
@@ -36,11 +35,25 @@ u can check with git status before and after that now node_modules folder is the
 then finally git add .
 git commit -m "first commit:...."
 
+
+/*
+Why should I use express.Router() over app.get,app.post?
+organizing routes into separate files, thus promoting modularity
+building router specific middleware
+It's mostly about code organization / maintainability and scoping middleware.
+If all you have are ten routes, you're fine without it, especially if they all need the same middleware. 
+At that size it's personal preference, there's no performance advantage or the like.
+Once you start having 3-4 or more resources (models) and need routes for each to create,read, update and delete, 
+or if some are authenticated and others are not, etc, you start appreciating the organization more.
+*/
+
 7)make index.js in route
 inside route/index.js
 
 const express=require('express');
 const router=express.Router();
+
+//here we r not doing app=express();
 
 module.exports=router;
 
@@ -82,6 +95,11 @@ router.use('/users',require('./users'));
 15)in terminal
 git add .
 git commit -m "added use_controller and routes"
+
+/*
+ejs=>embedded js
+It is a simple templating language/engine that lets its user generate HTML with plain javascript.
+*/
 
 16)npm install ejs
 
@@ -164,6 +182,7 @@ and _footer.ejs
 </body>
 
 25)npm install express-ejs-layouts
+//basic layout template
 26)in index.js
 
 const expressLayouts=require('express-ejs-layouts');
@@ -241,6 +260,24 @@ by writing <%-style%> and <%-script %> at appropriate places
     <%- script%>
 </body>
 </html>
+
+
+/*
+routes and controllers setup done
+there is a main route index.js ,and all other routes are used in index.js
+after reaching the proper route ,the correspondent controller is called
+now controllers renders the view by calling specific view file
+each view file only contains body of that file ,that is the header,footer are managed in diff files which are included in the same
+now we used express-layout template to define the basic template of the file that would be viewed (rendered)
+now layout.ejs
+in this we include header,footer and remove from the other files
+here we include body as variable which would be sent by other view files which would be rendered at that place
+we create layout.css in assets and tells the main file(index.js) to use express.static files from assets
+now we do layout extractScripts and extractStyles , this is done as when the body variable of layout would be coming from 
+differnt file ,the diff file might have css and js , so now it would be placed in body that is in bw layout file
+to make static files to be positioned at proper place we do the same 
+
+*/
 
 34)npm install mongoose
 35)inside mongoose.js in config
@@ -371,6 +408,23 @@ router.post('/create',usersController.create);
 48)after signing up in browser now,u can now check in studio3T 
 
 49)commiting and checkout back to master
+
+
+/*
+started with database
+installed and setup mongoose as per documentation ,all setups should be done in config
+required this connection in index.js
+creating a user model 
+to create a model first require mongoose,then create a schema ,then use this schema to create a model(check syntax) in user.js in models
+install cookie-parser and also call for express.urlencoded() before making a post req
+now creating signin and signup page forms ,the action mentioned here would be of type users/create...
+so this action would be managed in user.js routes which would then be controlled in users_controller
+now in user_controller , first require the model user,then there is a function to create =>User.create which creates a new user of type model User
+with information fetching from req.bodyduring this check for some conditions like if user already exists or password ,confirm password matching
+and then finally create user and redirect to sign in page(see syntax)
+this was all for manual authentication, now we'll use passport library
+*/
+
 
 50)npm install passport
    npm install passport-local 
@@ -528,7 +582,7 @@ module.exports.signIn=function(req,res){
 60)npm install connect-mongo
 
 61)index.js
-//using mongostore to store the session cookies so that after every restart of server user does not gets logged out
+//using mongostore to store the session cookies so that after every restart of server user does not gets logged out that is store all the session cookies in database
 const MongoStore= require('connect-mongo');
 
 
@@ -588,6 +642,38 @@ module.exports.destroySession=function(req,res){
 
 64)user.js in routes
 router.get('/sign-out',usersController.destroySession);
+
+/*
+Passport
+library used to authenticate users
+passport local authenticates based on two parameters username and password
+create the directed way to initialize passport local shown in documentation
+after that serialize and deserialize the user =>serializing the user to decide which key is to be kept in the cookies,
+basically after finding the user ,alloting cookie to it based on its id and then passport encrypts it automatically
+deserializing the user from the key in the cookies
+Now instead of using cookie-parser we will now use express-session as it stores the cookie in server also with unlimited data and you can read about session over cookies difference
+after setting the views,use session as middleware 
+now use the session=>give name to the session,secret which would be used to serialize user,set the cookie properties like maxAge
+now call for passport.initialize and passport.session()
+now can use passport to authenticate signin process by using passport as middleware to direct to controller from routes
+make checkAuthentication function which let user go to next page if authenticated
+also make setAuthenticatedUser function and there set the locals in response with req.user
+tell index.js to use setAuthenticatedUser, now update the signup,signin page by if user already authenticated then automatically redirect to next required page
+=> we only want user to access signup page when not signed in that is not authenticated,otherwise redirect to profile page
+now since after every server refresh the sessions are lost to store the sessions in database we use connect-mongo 
+If you don't want to use a database for your chat, you should store the messages into a simple hash. But keep in mind,
+if you restart your node application, they will be lost.MongoStore (or RedisStore) allows you to store the Express sessions into MongoDB/Redis
+instead of using the MemoryStore, which is not designed for a production environment.
+after setting it update the app.use(session) part by setting store:Mongostore......
+now when all set can change header ejs too and say that if user is authenticated then show profile and signout opt otherwise signin,signup opt
+to signout we use req.logout this  only removes the user from the session,not the other things eg:=>
+Before logout:
+"{"cookie":{"originalMaxAge":259200000,"expires":"2014-03-21T22:03:55.265Z","httpOnly":true,"path":"/"},"passport":{"user":"bn"}}"
+After logout:
+"{"cookie":{"originalMaxAge":259200000,"expires":"2014-03-21T22:04:01.148Z","httpOnly":true,"path":"/"},"passport":{}}"
+
+user has been removed but other cookies are still there and the complete session is not destroyed
+*/
 
 65)including sass
 npm install node-sass-middleware
@@ -677,6 +763,23 @@ header{
         }
     }
 }
+
+/*
+included sass(npm install  node-sass-middleware)
+writing scss is much more easier than long css
+
+const sassMiddleware=require('node-sass-middleware');
+app.use(sassMiddleware({
+    src:'./assets/scss',
+    dest:'./assets/css',
+    debug:true,
+    outputStyle:'extended',
+    prefix:'/css'
+}))
+src - (String) Source directory used to find .scss or .sass files.
+dest - (String) Destination directory used to output .css files (when undefined defaults to src).
+prefix - (String) It will tell the sass middleware that any request file will always be prefixed with <prefix> and this prefix should be ignored.
+*/
 
 70)in post.js in models
 const mongoose=require('mongoose');
@@ -878,7 +981,7 @@ const postSchema=new mongoose.Schema({
     //include the array of ids of all comments in this post schema itself
     comments:[{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'comment'
+        ref:'Comment'
     }]
 },
 {
