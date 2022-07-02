@@ -1573,3 +1573,134 @@ passport.use(new LocalStrategy({
 
 115)updated user_controller,post_controller,comments_controller
 with flash msgs
+
+116)including jquery ajax(as whenever we post or comment whole page refreshes which we dont want ,we want only that part gets updated not refreshed the whole page)
+in layout.ejs 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+117)in home.ejs
+<script src="/js/home_posts.js"></script>
+
+118)home_posts.js in js in assets
+{    
+    //method to submit the form data for new post using ajax
+    let createPost=function(){
+        //getting form from home.ejs id
+        let newPostForm=$('#new-post-form');
+        //preventing default action of submit as we need to submit through ajax
+        newPostForm.submit(function(e){
+            e.preventDefault();
+            //now submitting through ajax
+            $.ajax({
+                type:'post',
+                url:'/posts/create',
+                //converts post data into json like content becomes key and value is the one entered
+                data:newPostForm.serialize(),
+                success:function(data){
+                    console.log(data);
+                },error:function(error){
+                    console.log(error.responseText);
+                }
+            });
+        });
+    }
+
+    //method to create a post in dom
+    
+    createPost();
+} 
+
+119)post_controller.js
+updated with req.xhr
+module.exports.create=async function(req,res)
+{
+    try{
+        let post=await Post.create({
+            //we have got the post schema above
+            //now can access content,user
+            //here user._id (can refer in robo3t)
+            //req.body.content is bcoz we hv given name of form as content
+            content:req.body.content,
+            user:req.user._id
+        });
+
+        //if the req is in xhml http request i.e via ajax
+        if(req.xhr){
+            return res.status(200).json({
+                data:{
+                    post:post
+                },
+                message:"Post created!"
+            })
+        }
+
+        req.flash('success','Post published!');
+        return res.redirect('back');
+    }catch(err)
+    {
+        req.flash('error',err);
+        return res.redirect('back');
+    }
+}
+
+120)home_posts.js in js assets
+{    
+    //method to submit the form data for new post using ajax
+    let createPost=function(){
+        //getting form from home.ejs id
+        let newPostForm=$('#new-post-form');
+        //preventing default action of submit as we need to submit through ajax
+        newPostForm.submit(function(e){
+            e.preventDefault();
+            //now submitting through ajax
+            $.ajax({
+                type:'post',
+                url:'/posts/create',
+                //converts post data into json like content becomes key and value is the one entered
+                data:newPostForm.serialize(),
+                success:function(data){
+                    let newPost=newPostDom(data.data.post);
+                    $('#posts-list-container>ul').prepend(newPost);
+                },error:function(error){
+                    console.log(error.responseText);
+                }
+            });
+        });
+    }
+
+    //method to create a post in dom
+    let newPostDom=function(post){
+        //copied from _post.ejs and removed unnecessary checks
+        return $(`
+                    <li id="post-${post._id}">
+                    <p>
+                        <small>
+                            <a class="delete-post-button" href="/posts/destroy/${post.id}">X</a>
+                        </small>
+
+                        ${ post.content}
+                        <br>
+                        <small>
+                        ${post.user.name$}
+                        </small>
+                    </p>
+                    <div class="post-comments">
+                        <form action="/comments/create" method="POST">
+                            <input type="text" name="content" placeholder="Type Here to add comment..." required>
+                            <input type="hidden" name="post" value="${post._id}" >
+                            <input type="submit" value="Add Comment">
+                        </form>
+
+                        <div class="post-comments-list">
+                            <ul id="post-comments-${post._id}"> 
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+        `)
+    }
+
+    createPost();
+} 
+
+121)

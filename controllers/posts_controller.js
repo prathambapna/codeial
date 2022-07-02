@@ -3,7 +3,7 @@ const Comment=require('../models/comment');
 module.exports.create=async function(req,res)
 {
     try{
-        await Post.create({
+        let post=await Post.create({
             //we have got the post schema above
             //now can access content,user
             //here user._id (can refer in robo3t)
@@ -11,6 +11,17 @@ module.exports.create=async function(req,res)
             content:req.body.content,
             user:req.user._id
         });
+
+        //if the req is in xhml http request i.e via ajax
+        if(req.xhr){
+            return res.status(200).json({
+                data:{
+                    post:post
+                },
+                message:"Post created!"
+            })
+        }
+
         req.flash('success','Post published!');
         return res.redirect('back');
     }catch(err)
