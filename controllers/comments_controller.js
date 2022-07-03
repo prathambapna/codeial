@@ -1,5 +1,6 @@
 const Comment=require('../models/comment');
 const Post=require('../models/post');
+const User=require('../models/user');
 
 module.exports.create=async function(req,res){
     try{
@@ -15,6 +16,19 @@ module.exports.create=async function(req,res){
             //updating the posts schema as well that is pushing the comment in the comments array
             post.comments.push(comment);
             post.save();
+
+            if (req.xhr){
+                // Similar for comments to fetch the user's id!
+                comment = await comment.populate('user','name').execPopulate();
+    
+                return res.status(200).json({
+                    data: {
+                        comment:comment,
+                    },
+                    message: "Post created!"
+                });
+            }
+
             req.flash('success','Comment added!');
             res.redirect('/');
         }
@@ -34,6 +48,16 @@ module.exports.destroy=async function(req,res){
             comment.remove();
             //update by pull out from comments array the id with req.params.id that is comment id
             let post=await Post.findByIdAndUpdate(postId,{$pull:{comments:req.params.id}});
+             // send the comment id which was deleted back to the views
+             if (req.xhr){
+                return res.status(200).json({
+                    data: {
+                        comment_id: req.params.id
+                    },
+                    message: "Post deleted"
+                });
+            }
+
             req.flash('success','Comment deleted!')
             return res.redirect('back');
         }

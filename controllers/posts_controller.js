@@ -14,6 +14,8 @@ module.exports.create=async function(req,res)
 
         //if the req is in xhml http request i.e via ajax
         if(req.xhr){
+            // if we want to populate just the name of the user (we'll not want to send the password in the API), this is how we do it!
+            // post = await post.populate('user', 'name').execPopulate();
             return res.status(200).json({
                 data:{
                     post:post
@@ -27,6 +29,7 @@ module.exports.create=async function(req,res)
     }catch(err)
     {
         req.flash('error',err);
+        
         return res.redirect('back');
     }
 }
@@ -43,6 +46,17 @@ module.exports.destroy=async function(req,res){
             await Comment.deleteMany({
                 post:req.params.id
             });
+
+            if(req.xhr)
+            {
+                return res.status(200).json({
+                    data:{
+                        post_id:req.params.id
+                    },
+                    message:"Post Deleted"
+                });
+            }
+
             req.flash('success','Post and associated comments deleted!')
             return res.redirect('back');
         }else{

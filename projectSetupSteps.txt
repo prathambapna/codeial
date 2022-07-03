@@ -1703,4 +1703,150 @@ module.exports.create=async function(req,res)
     createPost();
 } 
 
-121)
+121)home_controller.js
+added sort func to creation of post
+module.exports.home= async function(req,res)
+{
+    try{
+        let posts=await Post.find({})
+        .sort('-createdAt')//sort acc to time of creation=>latest one showimg first
+        .populate('user')
+        .populate({
+            path:'comments',//as we have name the array in post schema as comments
+            populate:{
+                path:'user'//name the user in post schema as user
+            }
+        });
+
+        let users=await User.find({});
+
+        return res.render('home',{
+            title:'Codeial | Home',
+            posts:posts,
+            all_users:users
+        });
+    }catch(err){
+        console.log('Error',err);
+        return; 
+    }
+}
+
+122)home_posts.js in assets js
+{    
+    //method to submit the form data for new post using ajax
+    let createPost=function(){
+        //getting form from home.ejs id
+        let newPostForm=$('#new-post-form');
+        //preventing default action of submit as we need to submit through ajax
+        newPostForm.submit(function(e){
+            e.preventDefault();
+            //now submitting through ajax
+            $.ajax({
+                type:'post',
+                url:'/posts/create',
+                //converts post data into json like content becomes key and value is the one entered
+                data:newPostForm.serialize(),
+                success:function(data){
+                    //data.data.post can be seen as when we learnt api ,u can console log data on that u can see data in that post
+                    let newPost=newPostDom(data.data.post);
+                    $('#posts-list-container>ul').prepend(newPost);
+                    deletePost($(' .delete-post-button',newPost));//space before class name here to adjust newPost
+                },error:function(error){
+                    console.log(error.responseText);
+                }
+            });
+        });
+    }
+
+    //method to create a post in dom
+    let newPostDom=function(post){
+        //copied from _post.ejs and removed unnecessary checks
+        return $(`
+                    <li id="post-${post._id}">
+                    <p>
+                        <small>
+                            <a class="delete-post-button" href="/posts/destroy/${post._id}">X</a>
+                        </small>
+
+                        ${ post.content}
+                        <br>
+                        <small>
+                        ${post.user.name$}
+                        </small>
+                    </p>
+                    <div class="post-comments">
+                        <form action="/comments/create" method="POST">
+                            <input type="text" name="content" placeholder="Type Here to add comment..." required>
+                            <input type="hidden" name="post" value="${post._id}" >
+                            <input type="submit" value="Add Comment">
+                        </form>
+
+                        <div class="post-comments-list">
+                            <ul id="post-comments-${post._id}"> 
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+        `)
+    }
+
+    //method to delete a post from dom using ajax
+    let deletePost=function(deleteLink){
+        $(deleteLink).click(function(e){
+            e.preventDefault();
+
+            $.ajax({
+                type:'get',
+                url:$(deleteLink).prop('href'),//get href part from a tag , that is we hv passed a tag as deletelink
+                success:function(data){
+                    $(`#post-${data.data.post_id}`).remove();
+                },error:function(error){
+                    console.log(error.responseText);
+                }
+            })
+        })
+    }
+
+
+
+
+    createPost();
+} 
+
+123)post_controller
+//added req.xhr opt
+
+module.exports.destroy=async function(req,res){
+    try{
+        let post=await Post.findById(req.params.id);
+        //.id means converting the object id (._id) to string
+        if(post.user==req.user.id)
+        {
+            post.remove();
+            await Comment.deleteMany({
+                post:req.params.id
+            });
+
+            if(req.xhr)
+            {
+                return res.status(200).json({
+                    data:{
+                        post_id:req.params.id
+                    },
+                    message:"Post Deleted"
+                });
+            }
+
+            req.flash('success','Post and associated comments deleted!')
+            return res.redirect('back');
+        }else{
+            req.flash('error','You cannot delete this post');
+            return res.redirect('back');
+        }
+    }catch(err)
+    {
+        req.flash('error',err);
+        return res.redirect('back');
+    }
+    
+}

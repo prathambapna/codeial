@@ -51,6 +51,7 @@ module.exports.home= async function(req,res)
 {
     try{
         let posts=await Post.find({})
+        .sort('-createdAt')//sort acc to time of creation=>latest one showimg first
         .populate('user')
         .populate({
             path:'comments',//as we have name the array in post schema as comments
