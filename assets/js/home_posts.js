@@ -13,6 +13,7 @@
                 //converts post data into json like content becomes key and value is the one entered
                 data:newPostForm.serialize(),
                 success:function(data){
+                    // console.log(data);
                     //data.data.post can be seen as when we learnt api ,u can console log data on that u can see data in that post
                     let newPost=newPostDom(data.data.post);
                     $('#posts-list-container>ul').prepend(newPost);
@@ -47,7 +48,7 @@
                         ${ post.content}
                         <br>
                         <small>
-                        ${post.user.name$}
+                        ${post.user.name}
                         </small>
                     </p>
                     <div class="post-comments">
@@ -92,8 +93,6 @@
         });
     }
 
-
-
     // loop over all the existing posts on the page (when the window loads for the first time) and call the delete post method on delete link of each, also add AJAX (using the class we've created) to the delete button of each
     let convertPostsToAjax = function(){
         $('#posts-list-container>ul>li').each(function(){
@@ -107,9 +106,6 @@
         });
     }
 
-
-
     createPost();
     convertPostsToAjax();
-
 } 
