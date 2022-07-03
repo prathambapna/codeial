@@ -1,5 +1,7 @@
 //importing model
 const User=require('../models/user');
+const fs=require('fs');
+const path=require('path');
 
 //not need to change to async await as only one callback
 module.exports.profile=function(req,res){
@@ -10,14 +12,47 @@ module.exports.profile=function(req,res){
         });
     })
 }
-module.exports.update=function(req,res){
+module.exports.update= async function(req,res){
+    // if(req.user.id==req.params.id){
+    //     User.findByIdAndUpdate(req.params.id,req.body,function(err,User){
+    //         req.flash('success','Profile Updated successfully!'); 
+    //         return res.redirect('back');
+    //     });
+    // }else{
+    //     //if someone tries to fiddle by inspect nd then change id then show http 401 unauthorized part
+    //     return res.status(401).send('Unauthorized');
+    // }
+
+
     if(req.user.id==req.params.id){
-        User.findByIdAndUpdate(req.params.id,req.body,function(err,User){
-            req.flash('success','Profile Updated successfully!'); 
+        try{
+            let user=await User.findById(req.params.id);
+            User.uploadedAvatar(req,res,function(err){
+                if(err){console.log('*****Multer Error',err);}
+                // console.log(req.file);
+                //could not ready body of req without multer as form encytype is multipart
+                user.name=req.body.name;
+                user.email=req.body.email;
+                if(req.file){
+                    //if user already has a file before then delete the previous one and save the new one, making storage efficient
+                    if(user.avatar){
+                        fs.unlinkSync(path.join(__dirname,'..',user.avatar));
+                    }
+                    //this is saving the path of the uploaded file into the avatar field in the user
+                    user.avatar=User.avatarPath+'/'+req.file.filename;
+                }
+                user.save();
+                return res.redirect('back');
+            })
+
+        }catch(err)
+        {
+            req.flash('error',err);
             return res.redirect('back');
-        });
+        }
     }else{
         //if someone tries to fiddle by inspect nd then change id then show http 401 unauthorized part
+        req.flash('error','Unauthorized!');
         return res.status(401).send('Unauthorized');
     }
 }

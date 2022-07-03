@@ -1,8 +1,7 @@
 <!-- whatever u write here will be rendered to body of the layout -->
 <link rel="stylesheet" href="/css/user_profile.css">
-<h1>
-    Codeial /Profile
-</h1>
+
+<img src="<%=user.avatar%>" alt="<%=user.name%>" width="100">
 
 <!-- user available bcoz we made res.locals.user=req.user in passport.js -->
 <!-- <p><%= user.name%></p>
@@ -11,7 +10,7 @@
 
 <% if(user.id==profile_user.id){ %>
     <!-- if user matches then show the updation form otherwise just show profile info -->
-    <form action="/users/update/<%=profile_user.id%>" method="POST" enctype="multipart/form-data">
+    <form action="/users/update/<%=profile_user.id%>" method="POST" enctype="multipart/form-data" >
         <input type="text" name="name" placeholder="Your Name" value="<%=profile_user.name%>" required>
         <input type="email" name="email" placeholder="Your Email" value="<%=profile_user.email%>" required>
         

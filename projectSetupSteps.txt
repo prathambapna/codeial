@@ -2292,6 +2292,72 @@ let storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-      cb(null, file.fieldname + '-' + uniqueSuffix)
+      cb(null, file.fieldname + '-' + uniqueSuffix);
+      //here fieldname here is avatar ,the one defined in user schemma
     }
 });
+
+//static function
+//to connect diskStorage to storage of multer=>the first storage is of multer and second one defined above
+//.single('avatar') means that we can only send one file for particular to avatar not array of files like in post of pics(more than 1)
+userSchema.statics.uploadedAvatar=multer({storage:storage}).single('avatar');
+//want to make AVATAR_PATH public so defining it here so one can use User.avatarPath outside this file
+userSchema.statics.avatarPath=AVATAR_PATH;
+
+134)user_controller.js
+module.exports.update= async function(req,res){
+    // if(req.user.id==req.params.id){
+    //     User.findByIdAndUpdate(req.params.id,req.body,function(err,User){
+    //         req.flash('success','Profile Updated successfully!'); 
+    //         return res.redirect('back');
+    //     });
+    // }else{
+    //     //if someone tries to fiddle by inspect nd then change id then show http 401 unauthorized part
+    //     return res.status(401).send('Unauthorized');
+    // }
+
+
+    if(req.user.id==req.params.id){
+        try{
+            let user=await User.findById(req.params.id);
+            User.uploadedAvatar(req,res,function(err){
+                if(err){console.log('*****Multer Error',err);}
+                // console.log(req.file);
+                //could not ready body of req without multer as form encytype is multipart
+                user.name=req.body.name;
+                user.email=req.body.email;
+                if(req.file){
+                    //if user already has a file before then delete the previous one and save the new one, making storage efficient
+                    if(user.avatar){
+                        fs.unlinkSync(path.join(__dirname,'..',user.avatar));
+                    }
+                    
+                    //this is saving the path of the uploaded file into the avatar field in the user
+                    user.avatar=User.avatarPath+'/'+req.file.filename;
+                }
+                user.save();
+                return res.redirect('back');
+            })
+
+        }catch(err)
+        {
+            req.flash('error',err);
+            return res.redirect('back');
+        }
+    }else{
+        //if someone tries to fiddle by inspect nd then change id then show http 401 unauthorized part
+        req.flash('error','Unauthorized!');
+        return res.status(401).send('Unauthorized');
+    }
+}
+
+135)profile.ejs
+<img src="<%=user.avatar%>" alt="<%=user.name%>" width="100">
+
+
+136)index.js
+//make the uploads path available to the browser
+app.use('/uploads',express.static(__dirname+'/uploads'));
+
+
+137)

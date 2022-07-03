@@ -37,9 +37,17 @@ let storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-      cb(null, file.fieldname + '-' + uniqueSuffix)
+      cb(null, file.fieldname + '-' + uniqueSuffix);
+      //here fieldname here is avatar ,the one defined in user schemma
     }
 });
+
+//static function
+//to connect diskStorage to storage of multer=>the first storage is of multer and second one defined above
+//.single('avatar') means that we can only send one file for particular to avatar not array of files like in post of pics(more than 1)
+userSchema.statics.uploadedAvatar=multer({storage:storage}).single('avatar');
+//want to make AVATAR_PATH public so defining it here so one can use User.avatarPath outside this file
+userSchema.statics.avatarPath=AVATAR_PATH;
 
 const User=mongoose.model('User',userSchema);
 module.exports=User;
