@@ -2240,3 +2240,58 @@ class PostComments{
         });
     }
 }
+
+130)starting with file uploading
+npm install multer
+
+131)profile.ejs
+also added enctype="multipart/form-data" to form
+and input for file
+
+
+<% if(user.id==profile_user.id){ %>
+    <!-- if user matches then show the updation form otherwise just show profile info -->
+    <form action="/users/update/<%=profile_user.id%>" method="POST" enctype="multipart/form-data">
+        <input type="text" name="name" placeholder="Your Name" value="<%=profile_user.name%>" required>
+        <input type="email" name="email" placeholder="Your Email" value="<%=profile_user.email%>" required>
+        
+
+        //input type file
+        <input type="file" name="avatar" placeholder="Profile Picture">
+        <input type="submit" value="UPDATE">
+    </form>
+<%}else{%>
+    <p><%= profile_user.name%></p>
+    <p><%= profile_user.email%></p>
+<%}%>
+
+132)user.js in models
+//setting multer not in config but in models as we would require differenetly for post,user,comments
+//we could have a centralised one but this too is a good approach
+const multer=require('multer');
+const path=require('path');
+const AVATAR_PATH=path.join('/uploads/users/avatars');
+
+
+133)user.js in models
+
+created another field in user schema
+
+avatar:{
+    //we would be keeping the path of the place where the image is stored here
+    type:String,
+}
+
+//and
+
+let storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, path.join(__dirname,'..',AVATAR_PATH));
+      //__dirname is currently where we are+..+/uploads/users/avatars
+      // this is the final path
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+      cb(null, file.fieldname + '-' + uniqueSuffix)
+    }
+});
